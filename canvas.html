@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas</title>
+  <style>
+    .canvas-wrapper {
+      /* transform: rotate(45deg); */
+      display: inline-block;
+      width: 300px;
+      height: 300px;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    .canvas {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+    }
+
+    .canvas2 {
+      transform: rotateY(-180deg);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="canvas-wrapper">
+    <canvas class="canvas" id="canvas" width="300" height="300"></canvas>
+    <canvas class="canvas canvas2" id="canvas2" width="300" height="300"></canvas>
+  </div>
+
+  <script>
+    function draw() {
+      const ctx = document.getElementById("canvas").getContext("2d");
+      const drawRight = () => {
+        ctx.beginPath();
+        ctx.lineWidth = 20;
+        ctx.lineCap = 'round';
+        const x = 150; // x 坐标值
+        const y = 150; // y 坐标值
+        const r = 130; // 圆弧半径
+        const PI = Math.PI
+        const startAngle = 0.4 * PI; // 开始点
+        const endAngle = -0.4 * PI; // 结束点
+        const anticlockwise = true; // 顺时针或逆时针
+
+        ctx.arc(x, y, r, startAngle, endAngle, anticlockwise);
+        ctx.stroke();
+      }
+      
+      drawRight();
+    }
+
+    function draw2() {
+      const ctx = document.getElementById("canvas2").getContext("2d");
+      const drawLeft = () => {
+        ctx.beginPath();
+        ctx.lineWidth = 20;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = 'red';
+        const x = 150; // x 坐标值
+        const y = 150; // y 坐标值
+        const r = 130; // 圆弧半径
+        const PI = Math.PI
+        const startAngle = -0.4 * PI; // 开始点
+        const endAngle = 0.4 * PI; // 结束点
+        const anticlockwise = false; // 顺时针或逆时针
+        ctx.rotate(0, -180);
+
+        ctx.arc(x, y, r, startAngle, endAngle, anticlockwise);
+        ctx.stroke();
+      }
+      
+      drawLeft();
+    }
+
+    draw();
+    draw2();
+
+  </script>
+</body>
+
+</html>

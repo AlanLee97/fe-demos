@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>replaceState / pushState / popstate / hashchange</title>
+</head>
+
+<body>
+  <button id="replace">replaceState</button>
+  <button id="push">pushState</button>
+  <button id="hash">changeHash</button>
+
+  <script>
+    const btnReplace = document.getElementById('replace');
+    const btnPush = document.getElementById('push');
+    const btnHash = document.getElementById('hash');
+
+    btnReplace.onclick = () => {
+      window.history.replaceState({hello: 'test replaceState'}, null, '/test-replaceState');
+      console.log('alan->btnReplace', window.history);
+    }
+
+    btnPush.onclick = () => {
+      window.history.pushState({hello: 'test pushState'}, null, '/test-pushState');
+      console.log('alan->btnPush', window.history);
+    }
+
+    window.onpopstate = (val) => {
+      console.log('alan->onpopstate', val);
+      console.log('alan->onpopstate after', window.history);
+    }
+
+    window.onhashchange = (val) => {
+      console.log('alan->onhashchange', val);
+    }
+    let i = 0;
+    btnHash.onclick = () => {
+      location.hash = ++i;
+    }
+  </script>
+</body>
+
+</html>
