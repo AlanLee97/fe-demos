@@ -6,6 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Canvas</title>
   <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
     .canvas-wrapper {
       /* transform: rotate(45deg); */
       display: inline-block;
@@ -35,8 +47,8 @@
 
   <script>
     function draw(end) {
-      if(end < -0.4) end = -0.4;
-      if(end > 0.4) end = 0.4;
+      if (end < -0.4) end = -0.4;
+      if (end > 0.4) end = 0.4;
       const ctx = document.getElementById("canvas").getContext("2d");
       ctx.clearRect(0, 0, 300, 300);
       const drawRight = (end = 0.4) => {
@@ -47,6 +59,7 @@
         const y = 150; // y 坐标值
         const r = 130; // 圆弧半径
         const PI = Math.PI
+        // 0.4 -> -0.4
         const startAngle = 0.4 * PI; // 开始点
         const endAngle = -end * PI; // 结束点
         const anticlockwise = true; // 逆时针
@@ -58,9 +71,12 @@
       drawRight(end);
     }
 
-    function draw2() {
+    function draw2(end) {
+      if (end < -0.4) end = -0.4;
+      if (end > 0.4) end = 0.4;
       const ctx = document.getElementById("canvas2").getContext("2d");
-      const drawLeft = () => {
+      ctx.clearRect(0, 0, 300, 300);
+      const drawLeft = (end = 0.4) => {
         ctx.beginPath();
         ctx.lineWidth = 20;
         ctx.lineCap = 'round';
@@ -69,7 +85,8 @@
         const y = 150; // y 坐标值
         const r = 130; // 圆弧半径
         const PI = Math.PI
-        const startAngle = -0.4 * PI; // 开始点
+        // -0.4 -> 0.4
+        const startAngle = -end * PI; // 开始点
         const endAngle = 0.4 * PI; // 结束点
         const anticlockwise = false; // 顺时针或逆时针
         ctx.rotate(0, -180);
@@ -78,11 +95,11 @@
         ctx.stroke();
       }
 
-      drawLeft();
+      drawLeft(end);
     }
 
     // draw(0.4);
-    draw2();
+    // draw2();
 
     class MoveInfo {
       constructor(options = {}) {
@@ -240,7 +257,8 @@
       target: document.getElementById('wrapper'),
       onMove: ({ x, y, moveY }) => {
         console.log('alan->', moveY / 300)
-        draw(moveY / 300)
+        draw( - moveY / 300)
+        draw2( - moveY / 300)
       }
     })
 
