@@ -28,15 +28,18 @@
 </head>
 
 <body>
-  <div class="canvas-wrapper">
+  <div class="canvas-wrapper" id="wrapper">
     <canvas class="canvas" id="canvas" width="300" height="300"></canvas>
     <canvas class="canvas canvas2" id="canvas2" width="300" height="300"></canvas>
   </div>
 
   <script>
-    function draw() {
+    function draw(end) {
+      if(end < -0.4) end = -0.4;
+      if(end > 0.4) end = 0.4;
       const ctx = document.getElementById("canvas").getContext("2d");
-      const drawRight = () => {
+      ctx.clearRect(0, 0, 300, 300);
+      const drawRight = (end = 0.4) => {
         ctx.beginPath();
         ctx.lineWidth = 20;
         ctx.lineCap = 'round';
@@ -45,14 +48,14 @@
         const r = 130; // 圆弧半径
         const PI = Math.PI
         const startAngle = 0.4 * PI; // 开始点
-        const endAngle = -0.4 * PI; // 结束点
-        const anticlockwise = true; // 顺时针或逆时针
+        const endAngle = -end * PI; // 结束点
+        const anticlockwise = true; // 逆时针
 
         ctx.arc(x, y, r, startAngle, endAngle, anticlockwise);
         ctx.stroke();
       }
-      
-      drawRight();
+
+      drawRight(end);
     }
 
     function draw2() {
@@ -74,12 +77,182 @@
         ctx.arc(x, y, r, startAngle, endAngle, anticlockwise);
         ctx.stroke();
       }
-      
+
       drawLeft();
     }
 
-    draw();
+    // draw(0.4);
     draw2();
+
+    class MoveInfo {
+      constructor(options = {}) {
+        this.x = 0;
+        this.y = 0;
+        this.moveX = 0;
+        this.moveY = 0;
+        this.startX = 0;
+        this.startY = 0;
+        this.endX = 0;
+        this.endY = 0;
+
+        this.target = options.target || window
+
+        this.initCallback(options);
+
+        const {
+          trigger = 'auto',
+          ceil = 0,
+          floor = 0,
+        } = options;
+
+        this.ceil = ceil;
+        this.floor = window.innerHeight - floor;
+
+        this.trigger = trigger || 'auto'; // auto-自动触发， press-按下触发
+        this.triggered = trigger === 'auto';
+
+        this.register();
+      }
+
+      initCallback = (options = {}) => {
+        const noop = () => { };
+        const {
+          onStart = noop,
+          onMove = noop,
+          onEnd = noop,
+        } = options;
+
+        this.onStart = onStart;
+        this.onMove = onMove;
+        this.onEnd = onEnd;
+      };
+
+      on = (name = 'onMove') => {
+        if (typeof this[name] === 'function') {
+          const {
+            x, y, moveX, moveY, startX, startY, endX, endY,
+          } = this;
+          this[name]({
+            x, y, moveX, moveY, startX, startY, endX, endY,
+          });
+        }
+      };
+
+      handleStart = (e) => {
+        this.triggered = this.trigger === 'press';
+        let x = 0; let
+          y = 0;
+        if (e instanceof TouchEvent) {
+          this.triggered = true; // h5自动触发
+          const { clientX, clientY } = e.changedTouches[0] || {};
+          x = clientX;
+          y = clientY;
+        }
+        if (e instanceof MouseEvent) {
+          const { clientX, clientY } = e || {};
+          x = clientX;
+          y = clientY;
+        }
+        this.startX = x;
+        this.startY = y;
+
+        this.on('onStart');
+      };
+
+      handleMove = (e) => {
+        let mvX = 0; let
+          mvY = 0;
+        if (e instanceof TouchEvent) {
+          const { clientX, clientY } = e.changedTouches[0] || {};
+          mvX = clientX;
+          mvY = clientY;
+        }
+        if (e instanceof MouseEvent) {
+          const { clientX, clientY } = e || {};
+          mvX = clientX;
+          mvY = clientY;
+        }
+
+        if (mvY < this.ceil) {
+          mvY = this.ceil;
+        }
+
+        if (mvY > this.floor) {
+          mvY = this.floor;
+        }
+
+        this.x = mvX;
+        this.y = mvY;
+
+        this.moveX = mvX - this.startX;
+        this.moveY = mvY - this.startY;
+
+        if (this.triggered) {
+          this.on();
+        }
+      };
+
+      handleEnd = (e) => {
+        if (this.trigger === 'press') {
+          this.triggered = false;
+          return;
+        }
+        let x = 0; let
+          y = 0;
+        if (e instanceof TouchEvent) {
+          const { clientX, clientY } = e.changedTouches[0] || {};
+          x = clientX;
+          y = clientY;
+        }
+        if (e instanceof MouseEvent) {
+          const { clientX, clientY } = e || {};
+          x = clientX;
+          y = clientY;
+        }
+        this.endX = x;
+        this.endY = y;
+
+        this.on('onEnd');
+      };
+
+      register = () => {
+        let target = this.target
+        target.addEventListener('touchstart', this.handleStart);
+        target.addEventListener('touchmove', this.handleMove);
+        target.addEventListener('touchend', this.handleEnd);
+
+        target.addEventListener('mousedown', this.handleStart);
+        target.addEventListener('mousemove', this.handleMove);
+        target.addEventListener('mouseup', this.handleEnd);
+      };
+
+      destroy = () => {
+        target.removeEventListener('touchstart', this.handleStart);
+        target.removeEventListener('touchmove', this.handleMove);
+        target.removeEventListener('touchend', this.handleEnd);
+
+        target.removeEventListener('mousedown', this.handleStart);
+        target.removeEventListener('mousemove', this.handleMove);
+        target.removeEventListener('mouseup', this.handleEnd);
+      };
+    }
+    const moveInfo = new MoveInfo({
+      target: document.getElementById('wrapper'),
+      onMove: ({ x, y, moveY }) => {
+        console.log('alan->', moveY / 300)
+        draw(moveY / 300)
+      }
+    })
+
+    let i = -0.4
+    // setInterval(() => {
+    //   i += 0.1;
+    //   draw(i);
+    //   if(i > 0.4) i = -0.4;
+    //   // console.log('alan->i', i)
+    // }, 100)
+
+    // draw(i);
 
   </script>
 </body>
